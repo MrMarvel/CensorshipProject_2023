@@ -1,0 +1,8 @@
+yolo5face
+aiogram==3.0.0b7
+opencv-python
+moviepy
+dataclasses
+joblib
+torchvision
+pyyaml
