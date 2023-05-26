@@ -93,7 +93,7 @@ async def processing_handler(message: types.Message, state: FSMContext):
     await States.processing.set()
     # Estimate wait time (in minutes)
     video_file_path = os.path.join(user_folder_path, 'video.mp4')
-    estimated_time = round(get_video_frame_cnt(video_file_path) / 24 / 20)
+    estimated_time = round(get_video_frame_cnt(video_file_path) / 10)
     # Rename user folder
     os.rename(
         user_folder_path,
