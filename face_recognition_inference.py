@@ -43,7 +43,7 @@ class Handler(FileSystemEventHandler):
             for ext in self.IMAGE_EXTENSIONS:
                 input_image_paths.extend(glob.glob(f'{created_folder_path}/*.{ext}'))
             # Generate output path
-            output_video_path = os.path.normpath(input_video_path.replace('processing', 'ready')).split(os.sep)
+            output_video_path = os.path.normpath(input_video_path).split(os.sep)
             output_video_path = self.config['output_folder'] + '/' + os.sep.join(output_video_path[-2:])
             # Create output folder
             os.mkdir(os.sep.join(output_video_path.split(os.sep)[:-1]))
@@ -52,6 +52,11 @@ class Handler(FileSystemEventHandler):
                 input_video_path,
                 input_image_paths,
                 output_video_path,
+            )
+            # Rename output folder
+            os.rename(
+                os.sep.join(output_video_path.split(os.sep)[:-1]),
+                os.sep.join(output_video_path.replace('processing', 'ready').split(os.sep)[:-1]),
             )
             # Delete input folder
             shutil.rmtree(created_folder_path)
