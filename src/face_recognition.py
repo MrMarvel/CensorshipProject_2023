@@ -92,7 +92,7 @@ class VideoFaceRecognition:
                 left *= self.frame_compression
                 mask[top:bottom, left:right] = 0
             # Blur frame on mask
-            blurred_frame = cv2.GaussianBlur(frame, (45, 45), 0)
+            blurred_frame = cv2.GaussianBlur(frame, (81, 81), 0)
             frame = np.where(
                 mask==np.array([255, 255, 255]),
                 frame,
