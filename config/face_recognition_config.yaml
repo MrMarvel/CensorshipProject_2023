@@ -1,0 +1,4 @@
+input_folder: 'data/input'
+output_folder: 'data/output'
+frame_compression: 2
+frame_skip: 4
