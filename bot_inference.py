@@ -1,6 +1,8 @@
 import os
 import yaml
 import time
+import shutil
+import asyncio
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -33,14 +35,19 @@ class States(StatesGroup):
 
 @dp.message_handler(commands='start')
 async def start_handler(message: types.Message, state: FSMContext):
+    # Log
+    print(f'Started dialog with user {message.from_id}')
     # Set state
     await States.input_video.set()
     # Send message
     await message.answer(config['start_message'])
     await message.answer(config['input_video_help_message'])
 
+
 @dp.message_handler(content_types=['video'], state=States.input_video)
 async def video_handler(message: types.Message, state: FSMContext):
+    # Log
+    print(f'Got video from user {message.from_id}')
     # Create user folder
     user_folder_path = os.path.join(config['input_folder'], f'loading_{message.from_id}')
     os.mkdir(user_folder_path)
@@ -64,16 +71,22 @@ async def video_handler(message: types.Message, state: FSMContext):
         # Send message
         await message.answer(config['input_video_too_big_error_message'])
 
+
 @dp.message_handler(content_types=['photo'], state=States.input_image)
 async def image_handler(message: types.Message, state: FSMContext):
+    # Log
+    print(f'Got image from user {message.from_id}')
     # Get user folder path
     user_folder_path = os.path.join(config['input_folder'], f'loading_{message.from_id}')
     # Download image file
     image_file_path = os.path.join(user_folder_path, f'image_{round(time.time()*1000)}.jpg')
     await message.photo[-1].download(destination_file=image_file_path)
 
+
 @dp.message_handler(commands='start_processing', state=States.input_image)
 async def processing_handler(message: types.Message, state: FSMContext):
+    # Log
+    print(f'Started processing user {message.from_id}')
     # Get user folder path
     user_folder_path = os.path.join(config['input_folder'], f'loading_{message.from_id}')
     # Change state
@@ -90,21 +103,40 @@ async def processing_handler(message: types.Message, state: FSMContext):
     await message.answer(
         config['start_processing_message'].format(estimated_time=estimated_time)
     )
+    # Check folder for processed video
+    user_output_folder_path = os.path.join(config['output_folder'], f'ready_{message.from_id}')
+    while True:
+        await asyncio.sleep(5)
+        if os.path.isdir(user_output_folder_path):
+            # Log
+            print(f'Finihsed processing user {message.from_id}')
+            # Change state
+            await States.input_video.set()
+            # Send message
+            await message.answer(config['finished_message'])
+            # Send processed video
+            output_video_file = types.InputFile(os.path.join(user_output_folder_path, 'video.mp4'))
+            await message.answer_video(output_video_file)
+            shutil.rmtree(user_output_folder_path)
+            break
 
 @dp.message_handler(state=States.input_video)
 async def error_video_handler(message: types.Message, state: FSMContext):
     # Send message
     await message.answer(config['input_video_help_message'])
 
+
 @dp.message_handler(state=States.input_image)
 async def error_video_handler(message: types.Message, state: FSMContext):
     # Send message
     await message.answer(config['input_image_help_message'])
 
+
 @dp.message_handler(state=States.processing)
 async def error_processing_handler(message: types.Message, state: FSMContext):
     # Send message
     await message.answer(config['processing_message'])
+
 
 if __name__ == '__main__':
     print('Start polling...')

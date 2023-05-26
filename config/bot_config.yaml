@@ -10,3 +10,4 @@ input_image_help_message: 'Send me one or multiple images with faces that should
 start_processing_help_message: 'When you are ready to start processing, send me /start_processing command.'
 start_processing_message: 'Your video is being processing now. Estimated wait time is {estimated_time} minutes'
 processing_message: 'Your video is being processing, please wait.'
+finished_message: 'Your video has been processed.'
